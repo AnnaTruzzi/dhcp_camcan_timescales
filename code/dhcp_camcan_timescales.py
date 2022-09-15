@@ -10,7 +10,8 @@ from tau_estimation import run_tau_estimation
 import brain_renders
 from scipy.stats import spearmanr
 import subprocess
-import rpy2.robjects as ro
+#import rpy2.robjects as ro
+import correlations
 
 def plot_distribution(data,outname):
     sns.distplot(data)
@@ -31,60 +32,79 @@ def corr_with_snr():
     plt.show()
     plt.close()
 
-def friedman_test(data):
-    r=ro.r
-    r.source('friedman_test.r')
-    p=r.rtest(data)
-    return p
+#def friedman_test(data):
+#    r=ro.r
+#    r.source('friedman_test.r')
+#    p=r.rtest(data)
+#    return p
 
 
 #groups_list = ['dhcp_group1','dhcp_group2','camcan']
 groups_list = ['dhcp_group1','dhcp_group2']
 
+run_within_analysis = True
+run_tau_estimation = False
+run_brainrenders = False
+run_between_analysis = True
+
 ###########################
 ### Within group analysis #
 ###########################
-for group in groups_list:
-    if 'dhcp' in group:
-        TR = 0.392
-    else:
-        TR = 1.97
+if run_within_analysis:
 
-    subj_file = pd.read_csv(f'/dhcp/fmri_anna_graham/dhcp_camcan_timescales/data/{group}_subj_list.csv')
-    subj_list = list(subj_file.iloc[:,0])
-    #run_tau_estimation(group, subj_list)
+    for group in groups_list:
+        if 'dhcp' in group:
+            TR = 0.392
+        else:
+            TR = 1.97
 
-    # load tau file
-    tau = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_camcan_timescales/results/tau_estimation_{group}.txt')
-    
-    # remove outliers
-    p95_tau = np.nanpercentile(tau,95)
-    tau[np.where(tau>p95_tau)] = np.nan
+        subj_file = pd.read_csv(f'/dhcp/fmri_anna_graham/dhcp_camcan_timescales/data/{group}_subj_list.csv')
+        subj_list = list(subj_file.iloc[:,0])
+        if run_tau_estimation:
+            run_tau_estimation(group, subj_list)
 
-    # multiply by TR to get the scale in seconds, plot distribution, and calculate friedman test
-    tau = tau * TR
-    plot_distribution(tau,f'/dhcp/fmri_anna_graham/dhcp_camcan_timescales/figures/tau_distribution_{group}.png')
+        # load tau file
+        tau = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_camcan_timescales/results/tau_estimation_{group}.txt')
+        
+        # remove outliers
+        p95_tau = np.nanpercentile(tau,95)
+        tau[np.where(tau>p95_tau)] = np.nan
 
-    tau_mean = np.nanmean(tau,axis=0)
-    # check correlation to snr and plot
-    if 'group1' in group:
-        snr = np.loadtxt(os.path.join('/dhcp/fmri_anna_graham/dhcp_camcan_timescales/data/sub-CC00058XX09_ses-11300_preproc_bold-snr-mean_individualspace.txt'))
-        corr_with_snr()
-    
-    # get data for brain rendering
-    brain_renders.brainrenders(group,tau_mean)
+        # multiply by TR to get the scale in seconds, plot distribution, and calculate friedman test
+        tau = tau * TR
+        plot_distribution(tau,f'/dhcp/fmri_anna_graham/dhcp_camcan_timescales/figures/tau_distribution_{group}.png')
 
-    ##TODO: Friedman test (can we implement it in this script?)
+        tau_mean = np.nanmean(tau,axis=0)
+        np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_camcan_timescales/results/tau_estimation_ROImean_{group}.txt',tau_mean)
+        # check correlation to snr and plot
+        if 'group1' in group:
+            snr = np.loadtxt(os.path.join('/dhcp/fmri_anna_graham/dhcp_camcan_timescales/data/sub-CC00058XX09_ses-11300_preproc_bold-snr-mean_individualspace.txt'))
+            corr_with_snr()
+        
+        # get data for brain rendering
+        if run_brainrenders:
+            brain_renders.brainrenders(group,tau_mean)
+
+        ##TODO: can we implement Friedman test here in python?
 
 
 ############################
 ### Between group analysis #
 ############################
+if run_between_analysis:
+    dhcp_group1 = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_camcan_timescales/results/tau_estimation_ROImean_dhcp_group1.txt')
+    dhcp_group2 = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_camcan_timescales/results/tau_estimation_ROImean_dhcp_group2.txt')
+    snr = np.loadtxt(os.path.join('/dhcp/fmri_anna_graham/dhcp_camcan_timescales/data/sub-CC00058XX09_ses-11300_preproc_bold-snr-mean_individualspace.txt'))
+    #camcan = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_camcan_timescales/results/tau_estimation_camcan.txt')
 
-# TODO:
-# 1. corr between dhcp groups (both direct and partialling out snr)
-# 2. corr between camcan and each dhcp group (both whole brain and single nets)
-# 3. transmodal vs unimodal comparison
+    correlations.run_and_plot_corr(dhcp_group1,dhcp_group2,'dhcp_group1','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_camcan_timescales/figures/corr_dhcp1_dhcp2.png')
+    correlations.run_and_plot_partial_corr(dhcp_group1,dhcp_group2,snr,f'/dhcp/fmri_anna_graham/dhcp_camcan_timescales/results/partial_corr_dhcp1_dhcp2_snr.csv')
+
+
+    # TODO:
+    # 1. corr between dhcp groups (both direct and partialling out snr)
+    # 2. corr between camcan and each dhcp group (both whole brain and single nets)
+    # 3. transmodal vs unimodal comparison
 
 
 
