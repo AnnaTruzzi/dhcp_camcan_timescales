@@ -18,3 +18,11 @@ p95 <- quantile(db_tau,.95,na.rm=TRUE)
 db_tau[db_tau>p95] <- NA
 friedman.test(as.matrix(db_tau))
 
+
+### dhcp_group2
+db <- read.csv('tau_estimation_hcp.csv', sep=',')
+friedman.test(as.matrix(db[,4:403]))
+db_tau <- db[,4:403]
+p95 <- quantile(db_tau,.95,na.rm=TRUE)
+db_tau[db_tau>p95] <- NA
+friedman.test(as.matrix(db_tau))

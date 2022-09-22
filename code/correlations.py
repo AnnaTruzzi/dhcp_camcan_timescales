@@ -14,7 +14,7 @@ def run_and_plot_corr(x,y,x_label,y_label,plotname):
     plt.yticks(fontsize = 10)
     plt.xlabel(f'{x_label} - Tau (seconds)', fontsize = 12)
     plt.ylabel(f'{y_label} - Tau (seconds)', fontsize = 12)
-    plt.xlim((0,10))
+    plt.xlim((0,15))
     plt.suptitle(f'r = {round(r,4)}, p = {round(p,4)}')
     plt.savefig(plotname)
     #plt.show()
