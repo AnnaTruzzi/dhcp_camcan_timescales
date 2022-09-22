@@ -1,5 +1,4 @@
 #### dhcp_group1
-
         Friedman rank sum test
 
 data:  as.matrix(db_tau)
@@ -7,9 +6,14 @@ Friedman chi-squared = 837.21, df = 399, p-value < 2.2e-16
 
 
 #### dhcp_group2
-
         Friedman rank sum test
 
 data:  as.matrix(db_tau)
 Friedman chi-squared = 970, df = 399, p-value < 2.2e-16
 
+
+#### hcp
+        Friedman rank sum test
+
+data:  as.matrix(db_tau)
+Friedman chi-squared = 982.02, df = 399, p-value < 2.2e-16
