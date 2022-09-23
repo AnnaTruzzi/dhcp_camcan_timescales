@@ -14,9 +14,10 @@ def render(index_list,out_values,atlas,outvolume_size,outname):
     outimage = nib.Nifti1Image(outvolume, affine=atlas.affine)
     nib.save(outimage,outname)
     outimage.uncache()
+    outimage.uncache()
 
 
-def brainrenders(group,tau_mean):
+def brainrenders(group,tau_mean,net_dict,low_snr_idx):
     if 'dhcp' in group:
         ## Load templates and set outvolume size
         atlas = nib.load('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/schaefer_40weeks.nii.gz')
@@ -45,20 +46,16 @@ def brainrenders(group,tau_mean):
     transmodal_index = [i-1 for i in network_file['transmodal']]
     roi_value = np.concatenate((np.repeat(1,len(unimodal_index)),np.repeat(2,len(transmodal_index))))
     uni_vs_trans_index = unimodal_index + transmodal_index
-    render(uni_vs_trans_index,roi_value,atlas, outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_uni_vs_transmodal_render_all.nii.gz")
+    #render(uni_vs_trans_index,roi_value,atlas, outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_uni_vs_transmodal_render_all.nii.gz")
 
     ## Get indexes and names of 8 networks + make brain render file unique for all nets.
-    net8 = np.unique(np.array([i.split('_')[2][0:3] for i in roi_names_all]))
-    myorder = [4,5,3,0,1,2,6,7]
-    net8 = [net8[i] for i in myorder]
-    tem_index = [i for i, v in enumerate(net8) if 'Tem' in v]
-    net8[6] = 'TempPar'
-    net_idx = []
+    net_idx=[]
     netnum_list = []
-    print(net8)
-    for netnum,net in enumerate(net8):
-        for i,roi in enumerate(roi_names_all):
-            if net in roi:
-                net_idx.append(i)
-                netnum_list.append(netnum+1)
+    for netnum,net in enumerate(net_dict.keys()):
+        net_idx.extend(net_dict[net])
+        netnum_list.extend(np.repeat(netnum+1,len(net_dict[net])))
     render(net_idx,netnum_list,atlas,outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_8networks_render.nii.gz")
+
+    #render(low_snr_idx,np.repeat(1,len(low_snr_idx)),atlas,outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_lowSNRregions_render.nii.gz")
+
+

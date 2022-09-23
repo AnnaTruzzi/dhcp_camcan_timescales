@@ -12,6 +12,7 @@ from scipy.stats import spearmanr
 import subprocess
 #import rpy2.robjects as ro
 import correlations
+import pickle  
 
 def plot_distribution(data,outname):
     sns.distplot(data)
@@ -32,6 +33,24 @@ def corr_with_snr():
     plt.show()
     plt.close()
 
+
+def get_net_dict():
+    network_file17 = pd.read_csv('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/Schaefer2018_400Parcels_17Networks_order.txt',sep = '\t', header = None)
+    roi_names_all = np.array(network_file17[1])
+    net_list = np.unique(np.array([i.split('_')[2][0:3] for i in roi_names_all]))
+    myorder = [4,5,3,0,1,2,6,7]
+    net_list = [net_list[i] for i in myorder]
+    tem_index = [i for i, v in enumerate(net_list) if 'Tem' in v]
+    net_list[6] = 'TempPar'
+    print(net_list)
+    net_dict = {}
+    for netnum,net in enumerate(net_list):
+        net_dict[net] = []
+        for i,roi in enumerate(roi_names_all):
+            if net in roi:
+                net_dict[net].append(i)    
+    return net_dict
+
 #def friedman_test(data):
 #    r=ro.r
 #    r.source('friedman_test.r')
@@ -39,13 +58,21 @@ def corr_with_snr():
 #    return p
 
 
-#groups_list = ['dhcp_group1','dhcp_group2','hcp']
-groups_list = ['hcp']
+groups_list = ['dhcp_group1','dhcp_group2','hcp']
 
-run_within_analysis = False
+snr = np.loadtxt(os.path.join('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/sub-CC00058XX09_ses-11300_preproc_bold-snr-mean_individualspace.txt'))
+net_dict = get_net_dict()
+low_snr_idx = np.where(snr<40)[0]
+high_snr_index = np.where(snr>=40)[0]
+net_dict = get_net_dict()
+
+
+run_within_analysis = True
 run_tau_estimation_analysis = False
-run_brainrenders = False
+run_brainrenders = True
 run_between_analysis = True
+
+
 
 ###########################
 ### Within group analysis #
@@ -73,20 +100,37 @@ if run_within_analysis:
         # multiply by TR to get the scale in seconds, plot distribution, and calculate friedman test
         tau = tau * TR
         plot_distribution(tau,f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/tau_distribution_{group}.png')
+        im = plt.imshow(tau)
+        plt.colorbar(im)
+        plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/tau_2Ddist_{group}.png')
+        plt.close()
 
         tau_mean = np.nanmean(tau,axis=0)
         np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_{group}.txt',tau_mean)
         # check correlation to snr and plot
+
         if 'group1' in group:
-            snr = np.loadtxt(os.path.join('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/sub-CC00058XX09_ses-11300_preproc_bold-snr-mean_individualspace.txt'))
             corr_with_snr()
         
         # get data for brain rendering
         if run_brainrenders:
-            brain_renders.brainrenders(group,tau_mean)
+            brain_renders.brainrenders(group,tau_mean,net_dict,low_snr_idx)
+
+
+        net_name_list_plot=[]
+        tau_bynet_plot = []
+        for net in net_dict.keys():
+            net_name_list_plot.extend(np.repeat(net,len(net_dict[net])))
+            tau_bynet_plot.extend(tau_mean[net_dict[net]])
+        plot_bynet_dict = {'net_name':net_name_list_plot,'tau':tau_bynet_plot}
+        plot_bynet_df = pd.DataFrame(plot_bynet_dict)
+        sns.barplot(data=plot_bynet_df, x='net_name', y='tau')
+        plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/tau_bynet_{group}.png')
+        plt.close()
+
 
         ##TODO: can we implement Friedman test here in python?
-        # 2. barplots by net
+
 
 
 ############################
@@ -95,20 +139,25 @@ if run_within_analysis:
 if run_between_analysis:
     dhcp_group1 = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_dhcp_group1.txt')
     dhcp_group2 = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_dhcp_group2.txt')
-    snr = np.loadtxt(os.path.join('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/sub-CC00058XX09_ses-11300_preproc_bold-snr-mean_individualspace.txt'))
     hcp = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_hcp.txt')
+
 
     correlations.run_and_plot_corr(dhcp_group1,dhcp_group2,'dhcp_group1','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_dhcp2.png')
     #correlations.run_and_plot_partial_corr(dhcp_group1,dhcp_group2,snr,f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/partial_corr_dhcp1_dhcp2_snr.csv')
-    correlations.run_and_plot_corr(hcp,dhcp_group1,'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp.png')
-    correlations.run_and_plot_corr(hcp,dhcp_group2,'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp.png')
+    correlations.run_and_plot_corr(hcp[high_snr_index],dhcp_group1[high_snr_index],'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_highSNR.png')
+    correlations.run_and_plot_corr(hcp[high_snr_index],dhcp_group2[high_snr_index],'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp_highSNR.png')
 
+
+    # Corr by net
+    correlations.run_and_plot_corr_bynet(hcp,dhcp_group1,'hcp','dhcp_group1',net_dict)
+    correlations.run_and_plot_corr_bynet(hcp,dhcp_group2,'hcp','dhcp_group2',net_dict)
+
+
+    #with open('C:\\Users\\Anna\\Documents\\Research\\Projects\\ONGOING\\Project dHCP_Autocorrelation\\MRIautocorr_ARMA\\Data\\roi_by_netclass.pickle','rb') as f:
+        #network_file_Ito = pickle.load(f)    
 
     # TODO:
-    # 1. corr between dhcp groups (both direct and partialling out snr)
-    # 2. corr between hcp and each dhcp group (both whole brain and single nets)
     # 3. transmodal vs unimodal comparison
-
 
 
 
