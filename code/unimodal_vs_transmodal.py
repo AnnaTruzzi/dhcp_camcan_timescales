@@ -1,4 +1,3 @@
-from cProfile import label
 import numpy as np 
 import pandas as pd 
 import os
@@ -27,7 +26,7 @@ def cohend(d1, d2):
 	return (u1 - u2) / s
 
 
-def unimodal_vs_transmodal(group1, group2, unimodal_idx, transmodal_idx, label1, label2):
+def unimodal_vs_transmodal(group1, group2, unimodal_idx, transmodal_idx, label1, label2,flag):
     group1_unimodal = np.nanmean(group1[:,np.array(unimodal_idx)],axis=1)
     group1_transmodal = np.nanmean(group1[:,np.array(transmodal_idx)],axis=1)
     group2_unimodal = np.nanmean(group2[:,np.array(unimodal_idx)],axis=1)
@@ -43,29 +42,29 @@ def unimodal_vs_transmodal(group1, group2, unimodal_idx, transmodal_idx, label1,
     sns.distplot(group1_unimodal)
     s,p= shapiro(group1_unimodal)
     plt.suptitle(f'{label1} unimodal \n Shapiro: s = {s}, p {p}')
-    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_dist_{label1}.png')
+    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_dist_{label1}{flag}.png')
     plt.close()
 
     sns.distplot(group1_transmodal)
     s,p= shapiro(group1_transmodal)
     plt.suptitle(f'{label1} transmodal \n Shapiro: s = {s}, p {p}')
-    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/transmodal_dist_{label1}.png')
+    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/transmodal_dist_{label1}{flag}.png')
     plt.close()
 
     sns.distplot(group2_transmodal)
     s,p= shapiro(group2_transmodal)
     plt.suptitle(f'{label2} transmodal \n Shapiro: s = {s}, p {p}')
-    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/transmodal_dist_{label2}.png')
+    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/transmodal_dist_{label2}{flag}.png')
     plt.close()
 
     sns.distplot(group2_unimodal)
     s,p= shapiro(group2_unimodal)
     plt.suptitle(f'{label2} unimodal \n Shapiro: s = {s}, p {p}')
-    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_dist_{label2}.png')
+    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_dist_{label2}{flag}.png')
     plt.close()
 
 
-    with open('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/unimodal_vs_transmodal_stats.txt', 'w') as f:
+    with open(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/unimodal_vs_transmodal_stats_{label1}_{label2}{flag}.txt', 'w') as f:
         statistic,p = kruskal(group1_unimodal,group1_transmodal,group2_unimodal,group2_transmodal)
         print(statistic,p)
         f.write(f'Results for {label1} vs {label2} \n')
@@ -94,8 +93,8 @@ def unimodal_vs_transmodal(group1, group2, unimodal_idx, transmodal_idx, label1,
 
         t_camcan,p_camcan = wilcoxon(group2_unimodal,group2_transmodal)
         d_camcan = cohend(group2_unimodal,group2_transmodal)
-        print('CamCAN - t = {}, p = {}, d = {}'.format(t_camcan,p_camcan,d_camcan))
-        f.write(f'CamCAN  - t = {t_camcan}, p = {p_camcan}, d = {d_camcan} \n')
+        print('hcp - t = {}, p = {}, d = {}'.format(t_camcan,p_camcan,d_camcan))
+        f.write(f'hcp  - t = {t_camcan}, p = {p_camcan}, d = {d_camcan} \n')
 
     costum_palette = [sns.xkcd_rgb['lightblue'],sns.xkcd_rgb["burnt orange"]]
     sns.set_palette(costum_palette)
@@ -119,5 +118,5 @@ def unimodal_vs_transmodal(group1, group2, unimodal_idx, transmodal_idx, label1,
     #ax.text((0.8+1.2)*.5, 20, "**", ha='center', va='bottom',fontsize = 20)    
 
     plt.suptitle(f'{label1} vs {label2}')
-    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_transmodal_{label1}_{label2}.png')
+    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_transmodal_{label1}_{label2}{flag}.png')
     plt.close()

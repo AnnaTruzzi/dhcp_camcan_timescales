@@ -150,9 +150,12 @@ if run_between_analysis:
 
 
     correlations.run_and_plot_corr(dhcp_group1_mean,dhcp_group2_mean,'dhcp_group1','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_dhcp2.png')
-    #correlations.run_and_plot_partial_corr(dhcp_group1,dhcp_group2,snr,f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/partial_corr_dhcp1_dhcp2_snr.csv')
-    correlations.run_and_plot_corr(hcp_mean[high_snr_index],dhcp_group1_mean[high_snr_index],'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_highSNR.png')
-    correlations.run_and_plot_corr(hcp_mean[high_snr_index],dhcp_group2_mean[high_snr_index],'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp_highSNR.png')
+    correlations.run_and_plot_partial_corr(dhcp_group1_mean,dhcp_group2_mean,snr,f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/partial_corr_dhcp1_dhcp2_snr.csv')
+    correlations.run_and_plot_corr(hcp_mean[high_snr_index],dhcp_group1_mean[high_snr_index],'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_highSNR.png',title='high SNR only')
+    correlations.run_and_plot_corr(hcp_mean[high_snr_index],dhcp_group2_mean[high_snr_index],'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp_highSNR.png',title='high SNR only')
+
+    correlations.run_and_plot_corr(hcp_mean,dhcp_group1_mean,'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp.png')
+    correlations.run_and_plot_corr(hcp_mean,dhcp_group2_mean,'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp.png')
 
 
     # Corr by net
@@ -166,8 +169,13 @@ if run_between_analysis:
     transmodal_index = [i-1 for i in network_file_Ito['transmodal']]
 
 
-    unimodal_vs_transmodal(dhcp_group1,hcp,unimodal_index,transmodal_index,'dhcp_group1','hcp')
-    unimodal_vs_transmodal(dhcp_group2,hcp,unimodal_index,transmodal_index,'dhcp_group2','hcp')
+    unimodal_vs_transmodal(dhcp_group1,hcp,unimodal_index,transmodal_index,'dhcp_group1','hcp',flag='')
+    unimodal_vs_transmodal(dhcp_group2,hcp,unimodal_index,transmodal_index,'dhcp_group2','hcp',flag='')
+
+    unimodal_index_highSNR = [v for v in unimodal_index if v in high_snr_index]
+    transmodal_index_highSNR = [v for v in transmodal_index if v in high_snr_index]
+    unimodal_vs_transmodal(dhcp_group1,hcp,unimodal_index_highSNR,transmodal_index_highSNR,'dhcp_group1','hcp',flag='_highSNR')
+    unimodal_vs_transmodal(dhcp_group2,hcp,unimodal_index_highSNR,transmodal_index_highSNR,'dhcp_group2','hcp',flag='_highSNR')
 
 
 
