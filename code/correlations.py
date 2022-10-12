@@ -44,6 +44,6 @@ def run_and_plot_corr_bynet(x,y,x_label,y_label,net_dict):
         plt.ylabel(f'{y_label} - Tau (seconds)', fontsize = 12)
         plt.xlim((6,15))
         plt.suptitle(f'{net} \n r = {round(r,4)}, p = {round(p,4)}')
-        plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_{x_label}_{y_label}_{net}.png')
+        plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_{x_label}_{y_label}_{net}_7net.png')
         #plt.show()
         plt.close()

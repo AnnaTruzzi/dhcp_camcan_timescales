@@ -1,5 +1,3 @@
-import nibabel as nib
-import numpy as np 
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -14,18 +12,19 @@ import subprocess
 #import rpy2.robjects as ro
 import correlations
 import pickle  
+import numpy as np
 
 def plot_distribution(data,outname):
     sns.distplot(data)
     plt.savefig(outname)
     plt.close()
 
-def corr_with_snr():
-    r,p = spearmanr(snr, tau_mean)
+def corr_with_snr(x,y):
+    r,p = spearmanr(x, y)
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize = (12,5))
     plt.xticks(fontsize = 10)
     plt.yticks(fontsize = 10)
-    ax.scatter(snr,tau_mean,alpha=0.5)
+    ax.scatter(x,y,alpha=0.5)
     #ax.set_ylim((10,35))
     ax.set_xlabel('Median SNR per ROI',fontsize = 12)
     ax.set_ylabel('Mean Tau per ROI (seconds)',fontsize = 12)
@@ -36,13 +35,11 @@ def corr_with_snr():
 
 
 def get_net_dict():
-    network_file17 = pd.read_csv('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/Schaefer2018_400Parcels_17Networks_order.txt',sep = '\t', header = None)
-    roi_names_all = np.array(network_file17[1])
+    network_file7 = pd.read_csv('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/Schaefer2018_400Parcels_7Networks_order.txt',sep = '\t', header = None)
+    roi_names_all = np.array(network_file7[1])
     net_list = np.unique(np.array([i.split('_')[2][0:3] for i in roi_names_all]))
-    myorder = [4,5,3,0,1,2,6,7]
+    myorder = [6,5,3,0,1,2,4]
     net_list = [net_list[i] for i in myorder]
-    tem_index = [i for i, v in enumerate(net_list) if 'Tem' in v]
-    net_list[6] = 'TempPar'
     print(net_list)
     net_dict = {}
     for netnum,net in enumerate(net_list):
@@ -61,10 +58,6 @@ def get_net_dict():
 
 groups_list = ['dhcp_group1','dhcp_group2','hcp']
 
-snr = np.loadtxt('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/sub-CC00058XX09_ses-11300_preproc_bold-snr-mean_individualspace.txt')
-net_dict = get_net_dict()
-low_snr_idx = np.where(snr<40)[0]
-high_snr_index = np.where(snr>=40)[0]
 net_dict = get_net_dict()
 
 
@@ -88,32 +81,56 @@ if run_within_analysis:
 
         subj_file = pd.read_csv(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/{group}_subj_list.csv')
         subj_list = list(subj_file.iloc[:,0])
+        dual_sess_subj = list(pd.read_csv(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/48preterm.csv').iloc[:,0])
+        dual_sess_subj = ['sub-'+subj for subj in dual_sess_subj]
+
+        if 'dhcp' in group:
+            #onlysubj = [subj.split('\'')[1] for subj in subj_list]
+            #dual_sess_subj = set([x for x in onlysubj if onlysubj.count(x) > 1])
+            subj_list = [subj for subj in subj_list if subj.split('\'')[1] not in dual_sess_subj]
+        
         if run_tau_estimation_analysis:
             run_tau_estimation(group, subj_list)
 
         # load tau file
-        tau = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_{group}.txt')
+        tau = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_{group}_7net.txt')
         
         # remove outliers and multiply by TR
         p95_tau = np.nanpercentile(tau,95)
         tau[np.where(tau>p95_tau)] = np.nan
         tau = tau * TR
-        np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_in_seconds_{group}.txt',tau)
+
+        highnan_idx = []
+        for i,row in enumerate(range(0,tau.shape[0])):
+            tau_row = tau[row]
+            nan_percentage = (np.count_nonzero(np.isnan(tau_row))/tau_row.shape[0])*100
+            if nan_percentage>50:
+                highnan_idx.append(i)
+        tau = np.delete(tau,highnan_idx,axis=0)
+        #snr = np.delete(snr,highnan_idx,axis=0)
+        np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_in_seconds_{group}_7net.txt',tau)
 
         # plot distribution
-        plot_distribution(tau,f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/tau_distribution_{group}.png')
+        plot_distribution(tau,f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/tau_distribution_{group}_7net.png')
         plt.style.use('classic')
         im = plt.imshow(tau)
         plt.colorbar(im)
-        plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/tau_2Ddist_{group}.png')
+        plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/tau_2Ddist_{group}_7net.png')
         plt.close()
 
         tau_mean = np.nanmean(tau,axis=0)
-        np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_{group}.txt',tau_mean)
+        np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_{group}_7net.txt',tau_mean)
         # check correlation to snr and plot
 
+
+        ## SNR analysis
+        snr = np.loadtxt('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/SNR_estimation_dhcp_group1.txt')
+        snr_mean=np.mean(snr,axis=0)
+        net_dict = get_net_dict()        
+        low_snr_idx = np.where(snr<40)[0]
+        high_snr_index = np.where(snr>=40)[0]
         if 'group1' in group:
-            corr_with_snr()
+            corr_with_snr(np.mean(snr,axis=0),tau_mean)
         
         # get data for brain rendering
         if run_brainrenders:
@@ -128,34 +145,36 @@ if run_within_analysis:
         plot_bynet_dict = {'net_name':net_name_list_plot,'tau':tau_bynet_plot}
         plot_bynet_df = pd.DataFrame(plot_bynet_dict)
         sns.barplot(data=plot_bynet_df, x='net_name', y='tau')
-        plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/tau_bynet_{group}.png')
+        plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/tau_bynet_{group}_7net.png')
         plt.close()
 
 
         ##TODO: can we implement Friedman test here in python?
 
 
-
 ############################
 ### Between group analysis #
 ############################
 if run_between_analysis:
-    dhcp_group1 = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_in_seconds_dhcp_group1.txt')
-    dhcp_group2 = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_in_seconds_dhcp_group2.txt')
-    hcp = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_in_seconds_hcp.txt')
+    dhcp_group1 = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_in_seconds_dhcp_group1_7net.txt')
+    dhcp_group2 = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_in_seconds_dhcp_group2_7net.txt')
+    hcp = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_in_seconds_hcp_7net.txt')
+    snr = np.loadtxt('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/SNR_estimation_dhcp_group1.txt')
 
-    dhcp_group1_mean = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_dhcp_group1.txt')
-    dhcp_group2_mean = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_dhcp_group2.txt')
-    hcp_mean = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_hcp.txt')
+    dhcp_group1_mean = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_dhcp_group1_7net.txt')
+    dhcp_group2_mean = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_dhcp_group2_7net.txt')
+    hcp_mean = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_hcp_7net.txt')
+    snr_mean=np.mean(snr,axis=0)
+    low_snr_idx = np.where(snr_mean<40)[0]
+    high_snr_index = np.where(snr_mean>=40)[0]
 
+    correlations.run_and_plot_corr(dhcp_group1_mean,dhcp_group2_mean,'dhcp_group1','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_dhcp2_7net.png')
+    correlations.run_and_plot_partial_corr(dhcp_group1_mean,dhcp_group2_mean,snr_mean,f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/partial_corr_dhcp1_dhcp2_snr_7net.csv')
+    correlations.run_and_plot_corr(hcp_mean[high_snr_index],dhcp_group1_mean[high_snr_index],'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_highSNR_7net.png',title='high SNR only')
+    correlations.run_and_plot_corr(hcp_mean[high_snr_index],dhcp_group2_mean[high_snr_index],'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp_highSNR_7net.png',title='high SNR only')
 
-    correlations.run_and_plot_corr(dhcp_group1_mean,dhcp_group2_mean,'dhcp_group1','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_dhcp2.png')
-    correlations.run_and_plot_partial_corr(dhcp_group1_mean,dhcp_group2_mean,snr,f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/partial_corr_dhcp1_dhcp2_snr.csv')
-    correlations.run_and_plot_corr(hcp_mean[high_snr_index],dhcp_group1_mean[high_snr_index],'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_highSNR.png',title='high SNR only')
-    correlations.run_and_plot_corr(hcp_mean[high_snr_index],dhcp_group2_mean[high_snr_index],'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp_highSNR.png',title='high SNR only')
-
-    correlations.run_and_plot_corr(hcp_mean,dhcp_group1_mean,'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp.png')
-    correlations.run_and_plot_corr(hcp_mean,dhcp_group2_mean,'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp.png')
+    correlations.run_and_plot_corr(hcp_mean,dhcp_group1_mean,'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_7net.png')
+    correlations.run_and_plot_corr(hcp_mean,dhcp_group2_mean,'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp_7net.png')
 
 
     # Corr by net
@@ -163,11 +182,18 @@ if run_between_analysis:
     correlations.run_and_plot_corr_bynet(hcp_mean,dhcp_group2_mean,'hcp','dhcp_group2',net_dict)
 
 
-    with open('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/roi_by_netclass.pickle','rb') as f:
-        network_file_Ito = pickle.load(f)
-    unimodal_index = [i-1 for i in network_file_Ito['unimodal']]
-    transmodal_index = [i-1 for i in network_file_Ito['transmodal']]
+    #with open('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/roi_by_netclass.pickle','rb') as f:
+    #    network_file_Ito = pickle.load(f)
+    #unimodal_index = [i-1 for i in network_file_Ito['unimodal']]
+    #transmodal_index = [i-1 for i in network_file_Ito['transmodal']]
 
+    unimodal_index=[]
+    transmodal_index=[]
+    for key in net_dict.keys():
+        if 'Vis' in key or 'Som' in key:
+            unimodal_index.extend(net_dict[key])
+        else:
+            transmodal_index.extend(net_dict[key])
 
     unimodal_vs_transmodal(dhcp_group1,hcp,unimodal_index,transmodal_index,'dhcp_group1','hcp',flag='')
     unimodal_vs_transmodal(dhcp_group2,hcp,unimodal_index,transmodal_index,'dhcp_group2','hcp',flag='')

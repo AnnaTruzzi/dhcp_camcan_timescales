@@ -36,17 +36,24 @@ def brainrenders(group,tau_mean,net_dict,low_snr_idx):
 
     ## Load ROI label file
     print(f'Working on roi renders....')
-    network_file17 = pd.read_csv('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/Schaefer2018_400Parcels_17Networks_order.txt',sep = '\t', header = None)
-    roi_names_all = np.array(network_file17[1])
+    #network_file7 = pd.read_csv('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/Schaefer2018_400Parcels_7Networks_order.txt',sep = '\t', header = None)
+    #roi_names_all = np.array(network_file7[1])
 
     ## Get indexes and names of unimodal vs transmodal rois + make brain render file. INCLUDED LOW SNR REGIONS
-    with open('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/roi_by_netclass.pickle','rb') as f:
+    '''with open('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/roi_by_netclass.pickle','rb') as f:
         network_file = pickle.load(f)
     unimodal_index = [i-1 for i in network_file['unimodal']]
-    transmodal_index = [i-1 for i in network_file['transmodal']]
+    transmodal_index = [i-1 for i in network_file['transmodal']]'''
+    unimodal_index=[]
+    transmodal_index=[]
+    for key in net_dict.keys():
+        if 'Vis' in key or 'Som' in key:
+            unimodal_index.extend(net_dict[key])
+        else:
+            transmodal_index.extend(net_dict[key])
     roi_value = np.concatenate((np.repeat(1,len(unimodal_index)),np.repeat(2,len(transmodal_index))))
     uni_vs_trans_index = unimodal_index + transmodal_index
-    #render(uni_vs_trans_index,roi_value,atlas, outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_uni_vs_transmodal_render_all.nii.gz")
+    render(uni_vs_trans_index,roi_value,atlas, outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_uni_vs_transmodal_render_all_7net.nii.gz")
 
     ## Get indexes and names of 8 networks + make brain render file unique for all nets.
     net_idx=[]
@@ -54,7 +61,7 @@ def brainrenders(group,tau_mean,net_dict,low_snr_idx):
     for netnum,net in enumerate(net_dict.keys()):
         net_idx.extend(net_dict[net])
         netnum_list.extend(np.repeat(netnum+1,len(net_dict[net])))
-    render(net_idx,netnum_list,atlas,outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_8networks_render.nii.gz")
+    render(net_idx,netnum_list,atlas,outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_7networks_render.nii.gz")
 
     #render(low_snr_idx,np.repeat(1,len(low_snr_idx)),atlas,outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_lowSNRregions_render.nii.gz")
 
