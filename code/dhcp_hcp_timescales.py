@@ -56,14 +56,15 @@ def get_net_dict():
 #    return p
 
 
-groups_list = ['dhcp_group1','dhcp_group2','hcp']
+#groups_list = ['dhcp_group1','dhcp_group2','hcp']
+groups_list = ['hcp']
 
 net_dict = get_net_dict()
 
 
-run_within_analysis = False
+run_within_analysis = True
 run_tau_estimation_analysis = False
-run_brainrenders = False
+run_brainrenders = True
 run_between_analysis = True
 
 

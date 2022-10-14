@@ -20,17 +20,17 @@ def render(index_list,out_values,atlas,outvolume_size,outname):
 def brainrenders(group,tau_mean,net_dict,low_snr_idx):
     if 'dhcp' in group:
         ## Load templates and set outvolume size
-        atlas = nib.load('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/schaefer_40weeks.nii.gz')
+        atlas = nib.load('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/schaefer_40weeks_7net.nii.gz')
         outvolume_size = np.zeros((202, 274, 217))
     else:
-        atlas  = nib.load('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/Schaefer2018_400Parcels_17Networks_order_FSLMNI152_2mm.nii.gz')
+        atlas  = nib.load('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/Schaefer2018_400Parcels_7Networks_order_FSLMNI152_2mm.nii.gz')
         outvolume_size = np.zeros((91, 109, 91))
 
     atlas_data = atlas.get_fdata()
 
     ##### TAU distribution visualisation    
     print(f'Working on tau render for {group}....')
-    render(range(0,tau_mean.shape[0]),tau_mean,atlas,outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_tauvalues_render.nii.gz")
+    render(range(0,tau_mean.shape[0]),tau_mean,atlas,outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_tauvalues_render_7net.nii.gz")
 
     ##### ROI visualisation and grouping
 
@@ -63,6 +63,6 @@ def brainrenders(group,tau_mean,net_dict,low_snr_idx):
         netnum_list.extend(np.repeat(netnum+1,len(net_dict[net])))
     render(net_idx,netnum_list,atlas,outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_7networks_render.nii.gz")
 
-    #render(low_snr_idx,np.repeat(1,len(low_snr_idx)),atlas,outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_lowSNRregions_render.nii.gz")
+    render(low_snr_idx,np.repeat(1,len(low_snr_idx)),atlas,outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_lowSNRregions_render_7net.nii.gz")
 
 

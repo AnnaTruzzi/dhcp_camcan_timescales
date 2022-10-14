@@ -6,8 +6,8 @@ import pandas as pd
 import nilearn.signal as nil
 
 def get_SNR(timecourse):
-    detrend = nil.clean(timecourse,standardize=False)
-    snr = np.mean(detrend,axis=0)/np.std(detrend,axis=0)
+    #detrend = nil.clean(timecourse,standardize=False) + np.mean(timecourse, axis=0)
+    snr = np.mean(timecourse,axis=0)/np.std(timecourse,axis=0)
     return snr
 
 def autocorr_decay(dk,A,tau,B):
