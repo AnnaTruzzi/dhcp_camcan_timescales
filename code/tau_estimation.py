@@ -7,8 +7,10 @@ import nilearn.signal as nil
 
 def get_SNR(timecourse):
     #detrend = nil.clean(timecourse,standardize=False) + np.mean(timecourse, axis=0)
-    snr = np.mean(timecourse,axis=0)/np.std(timecourse,axis=0)
-    return snr
+    mean = np.mean(timecourse,axis=0)
+    std = np.std(timecourse,axis=0)
+    snr = mean/std
+    return snr,mean,std
 
 def autocorr_decay(dk,A,tau,B):
     return A*(np.exp(-(dk/tau))+B)
@@ -17,6 +19,8 @@ def run_tau_estimation(group,subj_list,**kwargs):
     roi=400
     alltau = np.zeros((len(subj_list),roi))
     allSNR = np.zeros((len(subj_list),roi))
+    allMEAN = np.zeros((len(subj_list),roi))
+    allSTD = np.zeros((len(subj_list),roi))
     nlags = 100
     removelag0 = 1
     if 'dhcp' in group:
@@ -34,7 +38,7 @@ def run_tau_estimation(group,subj_list,**kwargs):
             filename = os.path.join(root_pth,f'{sub}_timeseries_volumetric_perROI_7net.txt')
         ts_df = np.loadtxt(filename)
 
-        allSNR[i,:]=get_SNR(ts_df)
+        allSNR[i,:],allMEAN[i:],allSTD[i,:]=get_SNR(ts_df)
 
         xdata=np.arange(nlags)
 
@@ -57,7 +61,9 @@ def run_tau_estimation(group,subj_list,**kwargs):
     print(alltau.shape)
     print(allSNR.shape)
     np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_{group}_7net.txt',alltau)
-    np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/SNR_estimation_{group}_7net.txt',alltau)
+    np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/SNR_estimation_{group}_7net.txt',allSNR)
+    np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/MEAN_estimation_{group}_7net.txt',allMEAN)
+    np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/STD_estimation_{group}_7net.txt',allSTD)
 
     tau_df=pd.DataFrame(data=alltau[0:,0:],
             index=[i for i in range(alltau.shape[0])],

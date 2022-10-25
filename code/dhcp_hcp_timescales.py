@@ -57,14 +57,14 @@ def get_net_dict():
 
 
 #groups_list = ['dhcp_group1','dhcp_group2','hcp']
-groups_list = ['hcp']
+groups_list = ['dhcp_group1','dhcp_group2']
 
 net_dict = get_net_dict()
 
 
 run_within_analysis = True
-run_tau_estimation_analysis = False
-run_brainrenders = True
+run_tau_estimation_analysis = True
+run_brainrenders = False
 run_between_analysis = True
 
 
@@ -125,13 +125,15 @@ if run_within_analysis:
 
 
         ## SNR analysis
-        snr = np.loadtxt('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/SNR_estimation_dhcp_group1.txt')
+        snr = np.loadtxt('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/SNR_estimation_dhcp_group1_7net.txt')
+        mean = np.loadtxt('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/MEAN_estimation_dhcp_group1_7net.txt')
+        std = np.loadtxt('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/STD_estimation_dhcp_group1_7net.txt')
         snr_mean=np.mean(snr,axis=0)
         net_dict = get_net_dict()        
-        low_snr_idx = np.where(snr<40)[0]
-        high_snr_index = np.where(snr>=40)[0]
+        low_snr_idx = np.where(snr_mean<40)
+        high_snr_index = np.where(snr_mean>=40)
         if 'group1' in group:
-            corr_with_snr(np.mean(snr,axis=0),tau_mean)
+            corr_with_snr(snr_mean,tau_mean)
         
         # get data for brain rendering
         if run_brainrenders:
