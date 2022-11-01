@@ -9,7 +9,7 @@ from pingouin import partial_corr
 
 def run_and_plot_corr(x,y,x_label,y_label,plotname,title=None,xlim=15, ylim=15):
     r,p = spearmanr(x,y)
-    plt.scatter(x, y,alpha=0.5,s=10)
+    plt.scatter(x, y,alpha=0.5,s=15,color='#014182')
     plt.xticks(fontsize = 10)
     plt.yticks(fontsize = 10)
     plt.xlabel(f'{x_label} - Tau (seconds)', fontsize = 12)
@@ -38,7 +38,7 @@ def run_and_plot_corr_bynet(x,y,x_label,y_label,net_dict,xlim=15, ylim=15):
     for i,net in enumerate(net_dict.keys()):
         net_idx=net_dict[net]
         r,p = spearmanr(x[net_idx],y[net_idx])
-        plt.scatter(x[net_idx], y[net_idx],alpha=0.5,s=10)
+        plt.scatter(x[net_idx], y[net_idx],alpha=0.5,s=15,color='#014182')
         plt.xticks(fontsize = 10)
         plt.yticks(fontsize = 10)
         plt.xlabel(f'{x_label} - Tau (seconds)', fontsize = 12)

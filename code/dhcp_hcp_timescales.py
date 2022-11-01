@@ -24,7 +24,7 @@ def corr_with_snr(x,y):
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize = (12,5))
     plt.xticks(fontsize = 10)
     plt.yticks(fontsize = 10)
-    ax.scatter(x,y,alpha=0.5)
+    ax.scatter(x,y,alpha=0.5, color='#014182')
     #ax.set_ylim((10,35))
     ax.set_xlabel('Mean SNR per ROI',fontsize = 12)
     ax.set_ylabel('Mean Tau per ROI (seconds)',fontsize = 12)
