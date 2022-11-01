@@ -63,6 +63,8 @@ def brainrenders(group,tau_mean,net_dict,low_snr_idx):
         netnum_list.extend(np.repeat(netnum+1,len(net_dict[net])))
     render(net_idx,netnum_list,atlas,outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_7networks_render.nii.gz")
 
-    render(low_snr_idx,np.repeat(1,len(low_snr_idx)),atlas,outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_lowSNRregions_render_7net.nii.gz")
+    #render(low_snr_idx,np.repeat(1,len(low_snr_idx)),atlas,outvolume_size,f"/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_lowSNRregions_render_7net.nii.gz")
 
-
+    for net in net_dict.keys():
+        idx=net_dict[net]
+        render(idx, np.repeat(1,len(idx)),atlas,outvolume_size,f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/{group}_{net}_render_7net.nii.gz')

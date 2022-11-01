@@ -26,7 +26,7 @@ def corr_with_snr(x,y):
     plt.yticks(fontsize = 10)
     ax.scatter(x,y,alpha=0.5)
     #ax.set_ylim((10,35))
-    ax.set_xlabel('Median SNR per ROI',fontsize = 12)
+    ax.set_xlabel('Mean SNR per ROI',fontsize = 12)
     ax.set_ylabel('Mean Tau per ROI (seconds)',fontsize = 12)
     ax.set_title(f'SNR vs Tau {group} \n r = {round(r,4)}, p = {round(p,4)}',fontsize = 12)
     plt.savefig(os.path.join(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/tau_corr_snr_{group}.png'), dpi=300)
@@ -56,14 +56,13 @@ def get_net_dict():
 #    return p
 
 
-#groups_list = ['dhcp_group1','dhcp_group2','hcp']
-groups_list = ['dhcp_group1','dhcp_group2']
+groups_list = ['dhcp_group1','dhcp_group2','hcp']
 
 net_dict = get_net_dict()
 
 
 run_within_analysis = True
-run_tau_estimation_analysis = True
+run_tau_estimation_analysis = False
 run_brainrenders = False
 run_between_analysis = True
 
@@ -171,18 +170,18 @@ if run_between_analysis:
     low_snr_idx = np.where(snr_mean<40)[0]
     high_snr_index = np.where(snr_mean>=40)[0]
 
-    correlations.run_and_plot_corr(dhcp_group1_mean,dhcp_group2_mean,'dhcp_group1','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_dhcp2_7net.png')
+    correlations.run_and_plot_corr(dhcp_group1_mean,dhcp_group2_mean,'dhcp_group1','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_dhcp2_7net.png',xlim=8,ylim=8)
     correlations.run_and_plot_partial_corr(dhcp_group1_mean,dhcp_group2_mean,snr_mean,f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/partial_corr_dhcp1_dhcp2_snr_7net.csv')
     correlations.run_and_plot_corr(hcp_mean[high_snr_index],dhcp_group1_mean[high_snr_index],'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_highSNR_7net.png',title='high SNR only')
     correlations.run_and_plot_corr(hcp_mean[high_snr_index],dhcp_group2_mean[high_snr_index],'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp_highSNR_7net.png',title='high SNR only')
 
-    correlations.run_and_plot_corr(hcp_mean,dhcp_group1_mean,'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_7net.png')
-    correlations.run_and_plot_corr(hcp_mean,dhcp_group2_mean,'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp_7net.png')
+    correlations.run_and_plot_corr(hcp_mean,dhcp_group1_mean,'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_7net.png',xlim=12,ylim=8)
+    correlations.run_and_plot_corr(hcp_mean,dhcp_group2_mean,'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp_7net.png',xlim=12,ylim=8)
 
 
     # Corr by net
-    correlations.run_and_plot_corr_bynet(hcp_mean,dhcp_group1_mean,'hcp','dhcp_group1',net_dict)
-    correlations.run_and_plot_corr_bynet(hcp_mean,dhcp_group2_mean,'hcp','dhcp_group2',net_dict)
+    correlations.run_and_plot_corr_bynet(hcp_mean,dhcp_group1_mean,'hcp','dhcp_group1',net_dict,xlim=12,ylim=8)
+    correlations.run_and_plot_corr_bynet(hcp_mean,dhcp_group2_mean,'hcp','dhcp_group2',net_dict,xlim=12,ylim=8)
 
 
     #with open('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/roi_by_netclass.pickle','rb') as f:
