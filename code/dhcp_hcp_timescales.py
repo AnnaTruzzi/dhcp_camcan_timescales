@@ -30,6 +30,7 @@ def corr_with_snr(x,y):
     ax.set_ylabel('Mean Tau per ROI (seconds)',fontsize = 12)
     ax.set_title(f'SNR vs Tau {group} \n r = {round(r,4)}, p = {round(p,4)}',fontsize = 12)
     plt.savefig(os.path.join(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/tau_corr_snr_{group}.png'), dpi=300)
+    plt.savefig(os.path.join(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/tau_corr_snr_{group}.pdf'), dpi=300)
     plt.show()
     plt.close()
 
@@ -170,13 +171,13 @@ if run_between_analysis:
     low_snr_idx = np.where(snr_mean<40)[0]
     high_snr_index = np.where(snr_mean>=40)[0]
 
-    correlations.run_and_plot_corr(dhcp_group1_mean,dhcp_group2_mean,'dhcp_group1','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_dhcp2_7net.png',xlim=8,ylim=8)
+    correlations.run_and_plot_corr(dhcp_group1_mean,dhcp_group2_mean,'dhcp_group1','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_dhcp2_7net.pdf',xlim=8,ylim=8)
     correlations.run_and_plot_partial_corr(dhcp_group1_mean,dhcp_group2_mean,snr_mean,f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/partial_corr_dhcp1_dhcp2_snr_7net.csv')
     correlations.run_and_plot_corr(hcp_mean[high_snr_index],dhcp_group1_mean[high_snr_index],'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_highSNR_7net.png',title='high SNR only')
     correlations.run_and_plot_corr(hcp_mean[high_snr_index],dhcp_group2_mean[high_snr_index],'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp_highSNR_7net.png',title='high SNR only')
 
-    correlations.run_and_plot_corr(hcp_mean,dhcp_group1_mean,'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_7net.png',xlim=12,ylim=8)
-    correlations.run_and_plot_corr(hcp_mean,dhcp_group2_mean,'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp_7net.png',xlim=12,ylim=8)
+    correlations.run_and_plot_corr(hcp_mean,dhcp_group1_mean,'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_7net.pdf',xlim=12,ylim=8)
+    correlations.run_and_plot_corr(hcp_mean,dhcp_group2_mean,'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp_7net.pdf',xlim=12,ylim=8)
 
 
     # Corr by net
