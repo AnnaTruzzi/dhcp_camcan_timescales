@@ -177,6 +177,7 @@ if run_within_analysis:
         #plt.legend(handles=patches,fontsize = 12)
         plt.tight_layout()
         plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/tau_bynet_{group}_7net.png')
+        plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/tau_bynet_{group}_7net.pdf')
         plt.close()
 
 
