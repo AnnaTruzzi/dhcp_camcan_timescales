@@ -13,6 +13,8 @@ import subprocess
 import correlations
 import pickle  
 import numpy as np
+import matplotlib.patches as mpatches
+from scipy.stats import sem
 
 def plot_distribution(data,outname):
     sns.distplot(data)
@@ -64,8 +66,8 @@ net_dict = get_net_dict()
 
 run_within_analysis = True
 run_tau_estimation_analysis = False
-run_brainrenders = False
-run_between_analysis = True
+run_brainrenders = True
+run_between_analysis = False
 
 
 
@@ -140,6 +142,7 @@ if run_within_analysis:
             brain_renders.brainrenders(group,tau_mean,net_dict,low_snr_idx)
 
 
+        ### barplots for single networks
         net_name_list_plot=[]
         tau_bynet_plot = []
         for net in net_dict.keys():
@@ -147,7 +150,32 @@ if run_within_analysis:
             tau_bynet_plot.extend(tau_mean[net_dict[net]])
         plot_bynet_dict = {'net_name':net_name_list_plot,'tau':tau_bynet_plot}
         plot_bynet_df = pd.DataFrame(plot_bynet_dict)
-        sns.barplot(data=plot_bynet_df, x='net_name', y='tau')
+
+        colors=['#9e43a2','#6241c7','#019529','#9cef43','#ffa62b','#ff6cb5','#ffffff']
+        labels=['Visual','Somatomotor','Limbic','Fronto-Parietal','Default','Dorsal attention','Ventral attention']
+        custompalette = sns.set_palette(sns.color_palette(colors))
+        sns.set_context(rc = {'patch.linewidth': 0.5})
+        g1 = sns.barplot(data=plot_bynet_df, x='net_name', y='tau', capsize=.2,
+                palette=custompalette, linestyle = "-", edgecolor = "black",ci=None,dodge=False)
+        plt.ylim((0,12))
+        g1.set(xlabel=None)
+        g1.set(xticklabels=[])
+        g1.tick_params(bottom=False)
+        patches = []
+        for i,label in enumerate(labels):
+            patches.append(mpatches.Patch(color=colors[i], label=label))
+
+        x_coords = [p.get_x() + 0.5*p.get_width() for p in g1.patches]
+        y_coords = [p.get_height() for p in g1.patches]
+        
+        error_list = []
+        for net in plot_bynet_df['net_name'].unique():
+            error = sem(np.array(plot_bynet_df[plot_bynet_df['net_name']==net]['tau']))
+            error_list.append(error)            
+
+        plt.errorbar(x_coords, y_coords, fmt='none', yerr=error_list, c="black", elinewidth=3)
+        #plt.legend(handles=patches,fontsize = 12)
+        plt.tight_layout()
         plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/tau_bynet_{group}_7net.png')
         plt.close()
 

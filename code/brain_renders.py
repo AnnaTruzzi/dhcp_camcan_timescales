@@ -7,7 +7,7 @@ import nibabel as nib
 
 def render(index_list,out_values,atlas,outvolume_size,outname):
     atlas_data = atlas.get_fdata()
-    outvolume = outvolume_size
+    outvolume = np.zeros((outvolume_size.shape[0],outvolume_size.shape[1],outvolume_size.shape[2]))
     for i,roi in enumerate(index_list):
         roi_index = np.where(atlas_data==roi+1)
         outvolume[roi_index] = out_values[i]
