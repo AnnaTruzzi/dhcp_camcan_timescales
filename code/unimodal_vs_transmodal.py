@@ -98,25 +98,31 @@ def unimodal_vs_transmodal(group1, group2, unimodal_idx, transmodal_idx, label1,
 
     costum_palette = [sns.xkcd_rgb['lightblue'],sns.xkcd_rgb["burnt orange"]]
     sns.set_palette(costum_palette)
-    g1 = sns.violinplot(x='Group_type', y='Tau', hue='Network_type', data = net_dict, ci=None)
+    g1 = sns.boxplot(x='Group_type', y='Tau', hue='Network_type', data = net_dict)
+    #g1 = sns.swarmplot(x='Group_type', y='Tau', hue='Network_type', data = net_dict)
     #g1 = sns.stripplot(x='Group_type', y='Tau', hue='Network_type',data= net_dict,color='black')
-    x_coords = [p.get_x() + 0.5*p.get_width() for p in g1.patches]
-    y_coords = [p.get_height() for p in g1.patches]
+    #x_coords = [p.get_x() + 0.5*p.get_width() for p in g1.patches]
+    #y_coords = [p.get_height() for p in g1.patches]
     #plt.errorbar(x_coords, y_coords, fmt='none', yerr=[sem((group1_unimodal-group1_transmodal)/2),sem((group1_unimodal-group1_transmodal)/2),sem((group2_unimodal-group2_transmodal)/2),sem((group2_unimodal-group2_transmodal)/2)], c="black", elinewidth=2)
-    plt.ylim((0,15))
+    plt.ylim((-1,20))
     plt.yticks(fontsize = 12)
     plt.xticks(fontsize = 15)
     plt.ylabel('Tau (in seconds)', fontsize = 15)
-    #ax = g1.axes
-    # unimodal dhcp vs camcan
-    #ax.plot([-0.2,-0.2, 0.8,0.8], [29.9,30,30,29.9], lw=1.5, color = 'black')
-    #ax.text((-0.2+0.8)*.5, 30, "***", ha='center', va='bottom',fontsize = 20)    
-    #ax.plot([0.2,0.2, 1.2,1.2], [25.9,26,26,25.9], lw=1.5, color = 'black')
-    #ax.text((0.2+1.2)*.5, 26, "***", ha='center', va='bottom',fontsize = 20)    
-    # unimodal vs transmodal camcan
-    #ax.plot([0.8,0.8, 1.2,1.2], [19.9,20,20,19.9], lw=1.5, color = 'black')
-    #ax.text((0.8+1.2)*.5, 20, "**", ha='center', va='bottom',fontsize = 20)    
+    ax = g1.axes
+    # unimodal dhcp vs hcp
+    ax.plot([-0.2,-0.2, 0.8,0.8], [15.9,15.95,15.95,15.9], lw=1.5, color = 'black')
+    ax.text((-0.2+0.8)*.5, 16, "***", ha='center', va='bottom',fontsize = 20)
+    # transmodal dhcp vs hcp    
+    ax.plot([0.2,0.2, 1.2,1.2], [17.9,17.95,17.95,17.9], lw=1.5, color = 'black')
+    ax.text((0.2+1.2)*.5, 18, "***", ha='center', va='bottom',fontsize = 20)    
+    # unimodal vs transmodal hcp
+    ax.plot([0.8,0.8, 1.2,1.2], [14.9,14.95,14.95,14.9], lw=1.5, color = 'black')
+    ax.text((0.8+1.2)*.5, 15, "***", ha='center', va='bottom',fontsize = 20)    
+    # unimodal vs transmodal dhcp
+    ax.plot([-0.2,-0.2,0.2,0.2], [12.9,12.95,12.95,12.9], lw=1.5, color = 'black')
+    ax.text((-0.2+0.2)*.5, 13, "***", ha='center', va='bottom',fontsize = 20)    
 
     plt.suptitle(f'{label1} vs {label2}')
     plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_transmodal_{label1}_{label2}{flag}_7net.png')
+    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_transmodal_{label1}_{label2}{flag}_7net.pdf')
     plt.close()

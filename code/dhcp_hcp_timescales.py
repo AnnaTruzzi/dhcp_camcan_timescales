@@ -64,10 +64,10 @@ groups_list = ['dhcp_group1','dhcp_group2','hcp']
 net_dict = get_net_dict()
 
 
-run_within_analysis = True
+run_within_analysis = False
 run_tau_estimation_analysis = False
-run_brainrenders = True
-run_between_analysis = False
+run_brainrenders = False
+run_between_analysis = True
 
 
 
@@ -200,24 +200,17 @@ if run_between_analysis:
     low_snr_idx = np.where(snr_mean<40)[0]
     high_snr_index = np.where(snr_mean>=40)[0]
 
-    correlations.run_and_plot_corr(dhcp_group1_mean,dhcp_group2_mean,'dhcp_group1','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_dhcp2_7net.pdf',xlim=8,ylim=8)
+    correlations.run_and_plot_corr(dhcp_group1_mean,dhcp_group2_mean,'dhcp_group1','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_dhcp2_7net.pdf',xlim=(0,8),ylim=(0,8))
     correlations.run_and_plot_partial_corr(dhcp_group1_mean,dhcp_group2_mean,snr_mean,f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/partial_corr_dhcp1_dhcp2_snr_7net.csv')
-    correlations.run_and_plot_corr(hcp_mean[high_snr_index],dhcp_group1_mean[high_snr_index],'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_highSNR_7net.png',title='high SNR only')
-    correlations.run_and_plot_corr(hcp_mean[high_snr_index],dhcp_group2_mean[high_snr_index],'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp_highSNR_7net.png',title='high SNR only')
 
-    correlations.run_and_plot_corr(hcp_mean,dhcp_group1_mean,'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_7net.pdf',xlim=12,ylim=8)
-    correlations.run_and_plot_corr(hcp_mean,dhcp_group2_mean,'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp_7net.pdf',xlim=12,ylim=8)
+    correlations.run_and_plot_corr(hcp_mean,dhcp_group1_mean,'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_7net.png',xlim=(4,12),ylim=(0,8))
+    correlations.run_and_plot_corr(hcp_mean,dhcp_group2_mean,'hcp','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp2_hcp_7net.png',xlim=(4,12),ylim=(0,8))
 
 
     # Corr by net
-    correlations.run_and_plot_corr_bynet(hcp_mean,dhcp_group1_mean,'hcp','dhcp_group1',net_dict,xlim=12,ylim=8)
-    correlations.run_and_plot_corr_bynet(hcp_mean,dhcp_group2_mean,'hcp','dhcp_group2',net_dict,xlim=12,ylim=8)
+    correlations.run_and_plot_corr_bynet(hcp_mean,dhcp_group1_mean,'hcp','dhcp_group1',net_dict,xlim=(4,12),ylim=(0,8))
+    correlations.run_and_plot_corr_bynet(hcp_mean,dhcp_group2_mean,'hcp','dhcp_group2',net_dict,xlim=(4,12),ylim=(0,8))
 
-
-    #with open('/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/roi_by_netclass.pickle','rb') as f:
-    #    network_file_Ito = pickle.load(f)
-    #unimodal_index = [i-1 for i in network_file_Ito['unimodal']]
-    #transmodal_index = [i-1 for i in network_file_Ito['transmodal']]
 
     unimodal_index=[]
     transmodal_index=[]
@@ -230,17 +223,3 @@ if run_between_analysis:
     unimodal_vs_transmodal(dhcp_group1,hcp,unimodal_index,transmodal_index,'dhcp_group1','hcp',flag='')
     unimodal_vs_transmodal(dhcp_group2,hcp,unimodal_index,transmodal_index,'dhcp_group2','hcp',flag='')
 
-    unimodal_index_highSNR = [v for v in unimodal_index if v in high_snr_index]
-    transmodal_index_highSNR = [v for v in transmodal_index if v in high_snr_index]
-    unimodal_vs_transmodal(dhcp_group1,hcp,unimodal_index_highSNR,transmodal_index_highSNR,'dhcp_group1','hcp',flag='_highSNR')
-    unimodal_vs_transmodal(dhcp_group2,hcp,unimodal_index_highSNR,transmodal_index_highSNR,'dhcp_group2','hcp',flag='_highSNR')
-
-
-
-
-    #outlier_upper_lim = np.mean(tau)+2*np.std(tau)
-    #tau[np.where(tau>outlier_upper_lim)] = np.nan
-    #tau[np.where(tau<0)] = np.nan
-    
-    #friedman_res = friedman_test(tau)
-    #print(friedman_res)
