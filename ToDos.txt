@@ -1,0 +1,24 @@
+Fig1: substitute renders and change legend colours
+
+Fig2: replace corr with SNR and remove low SNR renders
+
+Fig3: replace all renders and barplot, change barplot and legend colours
+
+Fig4: replace corr with hcp and barplots with violin plots. Add significant asterisks to violin plots
+
+Fig5: replace somatomotor corr with visual network and add limbic network
+
+Tab1: remove
+
+Tab2: update corr values
+
+Supp_Tab1: remove
+
+Supp_Fig2: remove
+
+Text: 
+ - revise all
+ - add highlights
+ - check keywords
+ - remove JoN specifics
+ - figures and tables in proximity of relevant text
