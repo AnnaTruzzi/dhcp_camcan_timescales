@@ -64,10 +64,10 @@ groups_list = ['dhcp_group1','dhcp_group2','hcp']
 net_dict = get_net_dict()
 
 
-run_within_analysis = False
+run_within_analysis = True
 run_tau_estimation_analysis = False
 run_brainrenders = True
-run_between_analysis = True
+run_between_analysis = False
 
 
 
@@ -157,7 +157,7 @@ if run_within_analysis:
         sns.set_context(rc = {'patch.linewidth': 0.5})
         g1 = sns.barplot(data=plot_bynet_df, x='net_name', y='tau', capsize=.2,
                 palette=custompalette, linestyle = "-", edgecolor = "black",ci=None,dodge=False)
-        plt.ylim((0,12))
+        plt.ylim((0,8))
         g1.set(xlabel=None)
         g1.set(xticklabels=[])
         g1.tick_params(bottom=False)
