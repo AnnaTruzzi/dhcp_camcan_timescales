@@ -44,7 +44,7 @@ def run_and_plot_corr_bynet(x,y,x_label,y_label,net_dict,xlim=(0,15), ylim=(0,15
         plt.xlabel(f'{x_label} - Tau (seconds)', fontsize = 12)
         plt.ylabel(f'{y_label} - Tau (seconds)', fontsize = 12)
         if net=='Vis':
-            plt.xlim((6,12))
+            plt.xlim((2,4))
             plt.ylim((2,8))
         else:
             plt.xlim(xlim)
