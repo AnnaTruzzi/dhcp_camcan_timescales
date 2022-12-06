@@ -12,15 +12,13 @@ if __name__ == '__main__':
 
     group_list = ['dhcp_group1','dhcp_group2']
     for group in group_list:
-        dhcp_subj = pd.read_csv(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/{group}_subj_list.csv',header=None)
+        dhcp_subj = pd.read_csv(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/{group}_subj_list.csv')
         subj_list = list(dhcp_subj.iloc[:,0])
         subj_list = [subj for subj in subj_list if subj.split('\'')[1] not in dual_sess_subj]
         
         dhcp_subj_tot = [code.split("'")[1].split('-')[-1] for code in subj_list]
         dhcp_sess_tot = [code.split("'")[3].split('-')[-1] for code in subj_list]
-        #for code in dhcp_subj:
-                #dhcp_subj_tot.append(code.split("'")[1].split('-')[-1])
-                #dhcp_sess_tot.append(code.split("'")[3].split('-')[-1])
+
         dhcp_scan_age = []
         dhcp_gender = []
         dhcp_birthday = []
