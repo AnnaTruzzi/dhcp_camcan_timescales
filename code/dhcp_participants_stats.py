@@ -7,7 +7,7 @@ if __name__ == '__main__':
     infopth = '/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data' 
     dhcp_info = pd.read_csv(os.path.join(infopth,'participants_dhcp.txt'), sep='\t')
     dhcp_scan_info = pd.read_csv(os.path.join(infopth,'dhcp_scan_info.csv'))
-    dual_sess_subj = list(pd.read_csv(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/48preterm.csv').iloc[:,0])
+    dual_sess_subj = list(pd.read_csv(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/48preterm.csv', header=None).iloc[:,0])
     dual_sess_subj = ['sub-'+subj for subj in dual_sess_subj]
 
     group_list = ['dhcp_group1','dhcp_group2']

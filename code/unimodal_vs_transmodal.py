@@ -10,6 +10,8 @@ from scipy.stats import sem
 from scipy.stats import mannwhitneyu
 from scipy.stats import kruskal
 import seaborn as sns
+import statsmodels.api as sm
+from pingouin import partial_corr
 
 # function to calculate Cohen's d for independent samples
 # from: https://machinelearningmastery.com/effect-size-measures-in-python/
@@ -26,6 +28,39 @@ def cohend(d1, d2):
 	return (u1 - u2) / s
 
 
+def age_model(tau,scan_age,experience_age,network_type,label,flag):  
+    data_dict = {'scan_age':np.array(scan_age),
+                    'experience_age':np.array(experience_age),
+                    'tau':tau}
+    data_df = pd.DataFrame(data_dict)
+    X = data_df[['scan_age','experience_age']]
+    X = sm.add_constant(X) 
+    model=sm.OLS(data_df['tau'],X)
+    results=model.fit()
+    print(results.summary()) 
+    r_collinearity,p_collinearity = spearmanr(np.array(scan_age),np.array(experience_age))
+    
+    plt.scatter(data_df['scan_age'],data_df['tau'])
+    plt.suptitle('Relation between scan_age and tau')
+    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/age_model_scan_age_relation_{label}_{network_type}_{flag}.png')
+    plt.close()
+
+    plt.scatter(data_df['experience_age'],data_df['tau'])
+    plt.suptitle('Relation between experience_age and tau')
+    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/age_model_experience_age_relation_{label}_{network_type}_{flag}.png')
+    plt.close()
+
+    par_corr_scan_age = partial_corr(data=data_df, x='scan_age', y='tau', covar='experience_age', method='spearman')
+    par_corr_exp_age = partial_corr(data=data_df, x='experience_age', y='tau', covar='scan_age', method='spearman')
+    with open(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/age_model_{label}_{network_type}_{flag}.txt', 'w') as f:
+        print(results.summary(), file=f)
+        f.write(f'\n Collinearity check: r={r_collinearity}, p={p_collinearity} \n')
+        f.write('####  Partial corr - scan_age & tau \n')
+        print(par_corr_scan_age,file=f)
+        f.write('####  Partial corr - experience_age & tau \n')
+        print(par_corr_exp_age,file=f)
+
+
 def unimodal_vs_transmodal(group1, group2, unimodal_idx, transmodal_idx, label1, label2,flag):
     group1_unimodal = np.nanmean(group1[:,np.array(unimodal_idx)],axis=1)
     group1_transmodal = np.nanmean(group1[:,np.array(transmodal_idx)],axis=1)
@@ -38,33 +73,50 @@ def unimodal_vs_transmodal(group1, group2, unimodal_idx, transmodal_idx, label1,
                 'Tau': np.concatenate((group1_unimodal,group1_transmodal,group2_unimodal,group2_transmodal),axis=None)}
     net_db = pd.DataFrame(net_dict)
 
+    subj_list_dhcp = list(pd.read_csv(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_subj_list_{label1}_7net_{flag}.csv')['subj'])
+    dhcp_demographic_info=pd.read_csv(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/participants_dhcp.txt',sep='\t')
+    dhcp_scan_info=pd.read_csv(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/data/dhcp_scan_info.csv')
 
+    scan_age = []
+    birth_age = []
+    for subj in subj_list_dhcp:
+        scan_age.extend(dhcp_scan_info[dhcp_scan_info['subj']==subj]['scan_age'].values)
+        print(subj)
+        print(dhcp_scan_info[dhcp_scan_info['subj']==subj]['scan_age'].values)
+        birth_age.extend(dhcp_demographic_info[dhcp_demographic_info['participant_id']==subj.split('-')[-1]]['birth_age'].values)
+
+    #experience_age = np.array(scan_age)-np.array(birth_age)
+
+    #if flag=='original':
+        #age_model(group1_unimodal,scan_age,experience_age,'unimodal',label1,flag)
+        #age_model(group1_transmodal,scan_age,experience_age,'transmodal',label1,flag)
+    
     sns.distplot(group1_unimodal)
     s,p= shapiro(group1_unimodal)
     plt.suptitle(f'{label1} unimodal \n Shapiro: s = {s}, p {p}')
-    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_dist_{label1}{flag}_7net.png')
+    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_dist_{label1}_7net_{flag}.png')
     plt.close()
 
     sns.distplot(group1_transmodal)
     s,p= shapiro(group1_transmodal)
     plt.suptitle(f'{label1} transmodal \n Shapiro: s = {s}, p {p}')
-    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/transmodal_dist_{label1}{flag}_7net.png')
+    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/transmodal_dist_{label1}_7net_{flag}.png')
     plt.close()
 
     sns.distplot(group2_transmodal)
     s,p= shapiro(group2_transmodal)
     plt.suptitle(f'{label2} transmodal \n Shapiro: s = {s}, p {p}')
-    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/transmodal_dist_{label2}{flag}_7net.png')
+    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/transmodal_dist_{label2}_7net_{flag}.png')
     plt.close()
 
     sns.distplot(group2_unimodal)
     s,p= shapiro(group2_unimodal)
     plt.suptitle(f'{label2} unimodal \n Shapiro: s = {s}, p {p}')
-    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_dist_{label2}{flag}_7net.png')
+    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_dist_{label2}_7net_{flag}.png')
     plt.close()
 
 
-    with open(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/unimodal_vs_transmodal_stats_{label1}_{label2}{flag}_7net.txt', 'w') as f:
+    with open(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/unimodal_vs_transmodal_stats_{label1}_{label2}_7net_{flag}.txt', 'w') as f:
         statistic,p = kruskal(group1_unimodal,group1_transmodal,group2_unimodal,group2_transmodal)
         print(statistic,p)
         f.write(f'Results for {label1} vs {label2} \n')
@@ -108,21 +160,22 @@ def unimodal_vs_transmodal(group1, group2, unimodal_idx, transmodal_idx, label1,
     plt.yticks(fontsize = 12)
     plt.xticks(fontsize = 15)
     plt.ylabel('Tau (in seconds)', fontsize = 15)
-    ax = g1.axes
-    # unimodal dhcp vs hcp
-    ax.plot([-0.2,-0.2, 0.8,0.8], [15.9,15.95,15.95,15.9], lw=1.5, color = 'black')
-    ax.text((-0.2+0.8)*.5, 16, "***", ha='center', va='bottom',fontsize = 20)
-    # transmodal dhcp vs hcp    
-    ax.plot([0.2,0.2, 1.2,1.2], [17.9,17.95,17.95,17.9], lw=1.5, color = 'black')
-    ax.text((0.2+1.2)*.5, 18, "***", ha='center', va='bottom',fontsize = 20)    
-    # unimodal vs transmodal hcp
-    ax.plot([0.8,0.8, 1.2,1.2], [14.9,14.95,14.95,14.9], lw=1.5, color = 'black')
-    ax.text((0.8+1.2)*.5, 15, "***", ha='center', va='bottom',fontsize = 20)    
-    # unimodal vs transmodal dhcp
-    ax.plot([-0.2,-0.2,0.2,0.2], [12.9,12.95,12.95,12.9], lw=1.5, color = 'black')
-    ax.text((-0.2+0.2)*.5, 13, "***", ha='center', va='bottom',fontsize = 20)    
+    if flag=='original':
+        ax = g1.axes
+        # unimodal dhcp vs hcp
+        ax.plot([-0.2,-0.2, 0.8,0.8], [15.9,15.95,15.95,15.9], lw=1.5, color = 'black')
+        ax.text((-0.2+0.8)*.5, 16, "***", ha='center', va='bottom',fontsize = 20)
+        # transmodal dhcp vs hcp    
+        ax.plot([0.2,0.2, 1.2,1.2], [17.9,17.95,17.95,17.9], lw=1.5, color = 'black')
+        ax.text((0.2+1.2)*.5, 18, "***", ha='center', va='bottom',fontsize = 20)    
+        # unimodal vs transmodal hcp
+        ax.plot([0.8,0.8, 1.2,1.2], [14.9,14.95,14.95,14.9], lw=1.5, color = 'black')
+        ax.text((0.8+1.2)*.5, 15, "***", ha='center', va='bottom',fontsize = 20)    
+        # unimodal vs transmodal dhcp
+        ax.plot([-0.2,-0.2,0.2,0.2], [12.9,12.95,12.95,12.9], lw=1.5, color = 'black')
+        ax.text((-0.2+0.2)*.5, 13, "***", ha='center', va='bottom',fontsize = 20)    
 
     plt.suptitle(f'{label1} vs {label2}')
-    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_transmodal_{label1}_{label2}{flag}_7net.png')
-    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_transmodal_{label1}_{label2}{flag}_7net.pdf')
+    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_transmodal_{label1}_{label2}_7net_{flag}.png')
+    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_transmodal_{label1}_{label2}_7net_{flag}.pdf')
     plt.close()

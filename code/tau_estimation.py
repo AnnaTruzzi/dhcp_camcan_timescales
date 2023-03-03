@@ -15,7 +15,7 @@ def get_SNR(timecourse):
 def autocorr_decay(dk,A,tau,B):
     return A*(np.exp(-(dk/tau))+B)
 
-def run_tau_estimation(group,subj_list,**kwargs):
+def run_tau_estimation(group,subj_list,flag,**kwargs):
     roi=400
     alltau = np.zeros((len(subj_list),roi))
     allSNR = np.zeros((len(subj_list),roi))
@@ -37,6 +37,14 @@ def run_tau_estimation(group,subj_list,**kwargs):
         else:
             filename = os.path.join(root_pth,f'{sub}_timeseries_volumetric_perROI_7net.txt')
         ts_df = np.loadtxt(filename)
+
+        if 'dhcp' in group and flag=='drop_scan_dhcp':
+            ts_df=ts_df[0::2]
+
+        if flag=='global_signal':
+            brain_average=np.nanmean(ts_df,axis=1)
+            brain_average=np.reshape(brain_average,(brain_average.shape[0],-1))
+            ts_df= ts_df-brain_average
 
         allSNR[i,:],allMEAN[i:],allSTD[i,:]=get_SNR(ts_df)
 
@@ -60,17 +68,17 @@ def run_tau_estimation(group,subj_list,**kwargs):
 
     print(alltau.shape)
     print(allSNR.shape)
-    np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_{group}_7net.txt',alltau)
-    np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/SNR_estimation_{group}_7net.txt',allSNR)
-    np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/MEAN_estimation_{group}_7net.txt',allMEAN)
-    np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/STD_estimation_{group}_7net.txt',allSTD)
+    np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_{group}_7net_{flag}.txt',alltau)
+    np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/SNR_estimation_{group}_7net_{flag}.txt',allSNR)
+    np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/MEAN_estimation_{group}_7net_{flag}.txt',allMEAN)
+    np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/STD_estimation_{group}_7net_{flag}.txt',allSTD)
 
     tau_df=pd.DataFrame(data=alltau[0:,0:],
             index=[i for i in range(alltau.shape[0])],
             columns=[i for i in range(alltau.shape[1])])
     if 'dhcp' in group:
-        tau_df.insert(loc=0, column='subj', value=[item[0] for item in subj_list])
-        tau_df.insert(loc=1, column='sess', value=[item[1] for item in subj_list])
+        tau_df.insert(loc=0, column='subj', value=[item.split('\'')[1] for item in subj_list])
+        tau_df.insert(loc=1, column='sess', value=[item.split('\'')[3] for item in subj_list])
     else:
         tau_df.insert(loc=0, column='subj', value=subj_list)
-    tau_df.to_csv(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_{group}_7net.csv')
+    tau_df.to_csv(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_{group}_7net_{flag}.csv')

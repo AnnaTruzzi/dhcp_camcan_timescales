@@ -1,0 +1,34 @@
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                    tau   R-squared:                       0.203
+Model:                            OLS   Adj. R-squared:                  0.186
+Method:                 Least Squares   F-statistic:                     11.95
+Date:                Wed, 01 Mar 2023   Prob (F-statistic):           2.37e-05
+Time:                        17:05:08   Log-Likelihood:                -189.82
+No. Observations:                  97   AIC:                             385.6
+Df Residuals:                      94   BIC:                             393.4
+Df Model:                           2                                         
+Covariance Type:            nonrobust                                         
+==================================================================================
+                     coef    std err          t      P>|t|      [0.025      0.975]
+----------------------------------------------------------------------------------
+const              0.9856      2.969      0.332      0.741      -4.909       6.880
+scan_age           0.1235      0.075      1.655      0.101      -0.025       0.272
+experience_age    -0.3444      0.071     -4.874      0.000      -0.485      -0.204
+==============================================================================
+Omnibus:                        4.411   Durbin-Watson:                   1.794
+Prob(Omnibus):                  0.110   Jarque-Bera (JB):                4.296
+Skew:                           0.513   Prob(JB):                        0.117
+Kurtosis:                       2.904   Cond. No.                         677.
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+ Collinearity check: r=0.3741300971282059, p=0.0001599775668380899 
+####  Partial corr - scan_age & tau 
+           n         r          CI95%     p-val
+spearman  97  0.063113  [-0.14, 0.26]  0.541277
+####  Partial corr - experience_age & tau 
+           n         r           CI95%     p-val
+spearman  97 -0.409935  [-0.56, -0.23]  0.000034
