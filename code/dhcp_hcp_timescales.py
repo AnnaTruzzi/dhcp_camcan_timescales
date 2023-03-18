@@ -237,11 +237,13 @@ if run_between_analysis:
 
 
         SNR_control = [False,True]
+        dhcp_group1_weights = re_weight_dist(snr_dhcp1, snr_hcp)
+        dhcp_group2_weights = re_weight_dist(snr_dhcp2, snr_hcp)
 
         for snr_control in SNR_control:
             if snr_control and control=='drop_scan_dhcp':
-                dhcp_group1_mean = re_weight_dist(dhcp_group1, hcp, snr_dhcp1, snr_hcp)
-                dhcp_group2_mean = re_weight_dist(dhcp_group2, hcp, snr_dhcp2, snr_hcp)
+                dhcp_group1_mean = np.nansum(dhcp_group1*dhcp_group1_weights,axis=0) / np.sum(dhcp_group1_weights,axis=0)
+                dhcp_group2_mean = np.nansum(dhcp_group2*dhcp_group2_weights,axis=0) / np.sum(dhcp_group2_weights,axis=0)
                 snr_flag='_SNR_control' 
             else:
                 dhcp_group1_mean = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_dhcp_group1_7net_{control}.txt')
@@ -299,8 +301,8 @@ if run_between_analysis:
                 else:
                     transmodal_index.extend(net_dict[key])
 
-            unimodal_vs_transmodal(dhcp_group1,hcp,unimodal_index,transmodal_index,'dhcp_group1','hcp',flag=control,snr_flag=snr_flag)
-            unimodal_vs_transmodal(dhcp_group2,hcp,unimodal_index,transmodal_index,'dhcp_group2','hcp',flag=control,snr_flag=snr_flag)
+            unimodal_vs_transmodal(dhcp_group1,hcp,unimodal_index,transmodal_index,dhcp_group1_weights,'dhcp_group1','hcp',flag=control,snr_flag=snr_flag)
+            unimodal_vs_transmodal(dhcp_group2,hcp,unimodal_index,transmodal_index,dhcp_group2_weights,'dhcp_group2','hcp',flag=control,snr_flag=snr_flag)
 
 
 
