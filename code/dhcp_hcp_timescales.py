@@ -66,14 +66,13 @@ def get_net_dict():
 
 
 groups_list = ['dhcp_group1','dhcp_group2','hcp']
-#controls = ['drop_scan_dhcp','global_signal','term_only']
-controls = ['drop_scan_dhcp']
+controls = ['drop_scan_dhcp','global_signal','term_only']
 
 
 net_dict = get_net_dict()
 
 
-run_within_analysis = False
+run_within_analysis = True
 run_tau_estimation_analysis = False
 run_brainrenders = False
 run_between_analysis = True
@@ -252,9 +251,9 @@ if run_between_analysis:
 
 
             hcp_mean = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_hcp_7net_{control}.txt')
-            snr_dhcp1_mean=np.mean(snr_dhcp1,axis=0)
-            snr_dhcp2_mean=np.mean(snr_dhcp2,axis=0)
-            snr_hcp_mean=np.mean(snr_hcp,axis=0)
+            snr_dhcp1_mean=np.nanmean(snr_dhcp1,axis=0)
+            snr_dhcp2_mean=np.nanmean(snr_dhcp2,axis=0)
+            snr_hcp_mean=np.nanmean(snr_hcp,axis=0)
 
             sns.distplot(snr_dhcp1_mean, hist=False, rug=True)
             sns.distplot(snr_hcp_mean, hist=False, rug=True)
