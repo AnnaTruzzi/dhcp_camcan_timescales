@@ -72,7 +72,7 @@ controls = ['drop_scan_dhcp','global_signal','term_only']
 net_dict = get_net_dict()
 
 
-run_within_analysis = True
+run_within_analysis = False
 run_tau_estimation_analysis = False
 run_brainrenders = False
 run_between_analysis = True
@@ -279,6 +279,7 @@ if run_between_analysis:
 
 
             correlations.run_and_plot_corr(dhcp_group1_mean,dhcp_group2_mean,'dhcp_group1','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_dhcp2_7net_{control}{snr_flag}.png',xlim=(0,8),ylim=(0,8))
+            correlations.run_and_plot_corr(dhcp_group1_mean,dhcp_group2_mean,'dhcp_group1','dhcp_group2',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_dhcp2_7net_{control}{snr_flag}.pdf',xlim=(0,8),ylim=(0,8))
             correlations.run_and_plot_partial_corr(dhcp_group1_mean,dhcp_group2_mean,snr_dhcp1_mean,f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/partial_corr_dhcp1_dhcp2_snr_7net_{control}{snr_flag}.csv')
 
             correlations.run_and_plot_corr(hcp_mean,dhcp_group1_mean,'hcp','dhcp_group1',f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/corr_dhcp1_hcp_7net_{control}{snr_flag}.png',xlim=(0,6),ylim=(0,8))
