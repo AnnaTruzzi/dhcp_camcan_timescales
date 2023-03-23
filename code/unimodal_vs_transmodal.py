@@ -63,9 +63,12 @@ def age_model(tau,scan_age,experience_age,network_type,label,flag,snr_flag):
 
 def age_corr(tau,experience_age,network_type,label,flag,snr_flag):
     r,p = spearmanr(np.array(experience_age),np.array(tau))
-    plt.scatter(np.array(experience_age),np.array(tau))
+    plt.scatter(np.array(experience_age),np.array(tau),alpha=0.5,s=15,color='#014182')
+    plt.xlim((-0.05,18))
+    plt.ylim((-0.05,14))
     plt.suptitle(f'Experience_age and Tau - {label} \n r={r}, p={p}')
     plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/experience_age_corr_with_tau_{label}_{network_type}_{flag}{snr_flag}.png')
+    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/experience_age_corr_with_tau_{label}_{network_type}_{flag}{snr_flag}.pdf')
     plt.close()
 
 
