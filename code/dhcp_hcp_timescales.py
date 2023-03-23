@@ -157,7 +157,7 @@ if run_within_analysis:
 
             plt.bar(range(0,tau_array.shape[1]),nan_roi)
             plt.xlim((0,400))
-            plt.xlim((0,20))
+            plt.ylim((0,20))
             plt.suptitle(f'Nan percentage per ROI in {group} \n Total nan % = {nan_total_perc}, Max % = {np.max(nan_roi)}')
             plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/nan_count_{group}_7net_{control}.png')
             plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/nan_count_{group}_7net_{control}.pdf')
