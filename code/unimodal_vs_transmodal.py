@@ -175,7 +175,7 @@ def unimodal_vs_transmodal(group1, group2, unimodal_idx, transmodal_idx, group1_
     plt.yticks(fontsize = 12)
     plt.xticks(fontsize = 15)
     plt.ylabel('Tau (in seconds)', fontsize = 15)
-    if flag=='original':
+    if flag=='drop_scan_dhcp':
         ax = g1.axes
         # unimodal dhcp vs hcp
         ax.plot([-0.2,-0.2, 0.8,0.8], [15.9,15.95,15.95,15.9], lw=1.5, color = 'black')
@@ -186,9 +186,6 @@ def unimodal_vs_transmodal(group1, group2, unimodal_idx, transmodal_idx, group1_
         # unimodal vs transmodal hcp
         ax.plot([0.8,0.8, 1.2,1.2], [14.9,14.95,14.95,14.9], lw=1.5, color = 'black')
         ax.text((0.8+1.2)*.5, 15, "***", ha='center', va='bottom',fontsize = 20)    
-        # unimodal vs transmodal dhcp
-        ax.plot([-0.2,-0.2,0.2,0.2], [12.9,12.95,12.95,12.9], lw=1.5, color = 'black')
-        ax.text((-0.2+0.2)*.5, 13, "***", ha='center', va='bottom',fontsize = 20)    
 
     plt.suptitle(f'{label1} vs {label2}')
     plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/unimodal_transmodal_{label1}_{label2}_7net_{flag}{snr_flag}.png')
