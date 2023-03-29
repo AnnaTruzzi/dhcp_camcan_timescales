@@ -4,7 +4,7 @@ import os
 from scipy import optimize
 import pandas as pd
 import nilearn.signal as nil
-
+from scipy import signal
 
 def get_SNR(timecourse):
     #detrend = nil.clean(timecourse,standardize=False) + np.mean(timecourse, axis=0)
@@ -43,6 +43,9 @@ def run_tau_estimation(group,subj_list,flag,**kwargs):
 
         if 'dhcp' in group and (flag=='drop_scan_dhcp' or flag=='SNR_control'):
             ts_df=ts_df[0::2]
+
+        if 'dhcp' in group and flag=='low_pass_filter':
+            ts_df = signal.decimate(ts_df,2,axis=0)
 
         if 'dhcp' in group and flag=='term_only':
             ts_df=ts_df[0::2]

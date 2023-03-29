@@ -66,16 +66,16 @@ def get_net_dict():
 
 
 groups_list = ['dhcp_group1','dhcp_group2','hcp']
-controls = ['drop_scan_dhcp','global_signal','term_only']
-
+#controls = ['drop_scan_dhcp','global_signal','term_only']
+controls=['low_pass_filter']
 
 net_dict = get_net_dict()
 
 
-run_within_analysis = True
+run_within_analysis = False
 run_tau_estimation_analysis = False
 run_brainrenders = False
-run_between_analysis = False
+run_between_analysis = True
 
 
 
