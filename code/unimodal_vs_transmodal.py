@@ -72,17 +72,17 @@ def age_corr(tau,experience_age,network_type,label,flag,snr_flag):
     plt.close()
 
 
-def unimodal_vs_transmodal(group1, group2, unimodal_idx, transmodal_idx, group1_weights, label1, label2,flag,snr_flag):
+def unimodal_vs_transmodal(group1, group2, unimodal_idx, transmodal_idx, group2_weights, label1, label2,flag,snr_flag):
     if snr_flag=='':
         group1_unimodal = np.nanmean(group1[:,np.array(unimodal_idx)],axis=1)
         group1_transmodal = np.nanmean(group1[:,np.array(transmodal_idx)],axis=1)
         group2_unimodal = np.nanmean(group2[:,np.array(unimodal_idx)],axis=1)
         group2_transmodal = np.nanmean(group2[:,np.array(transmodal_idx)],axis=1)
     else:
-        group1_unimodal = np.nansum(group1[:,np.array(unimodal_idx)]*group1_weights[:,np.array(unimodal_idx)],axis=1) / np.sum(group1_weights[:,np.array(unimodal_idx)],axis=1)
-        group1_transmodal = np.nansum(group1[:,np.array(transmodal_idx)]*group1_weights[:,np.array(transmodal_idx)],axis=1) / np.sum(group1_weights[:,np.array(transmodal_idx)],axis=1)
-        group2_unimodal = np.nanmean(group2[:,np.array(unimodal_idx)],axis=1)
-        group2_transmodal = np.nanmean(group2[:,np.array(transmodal_idx)],axis=1)
+        group1_unimodal = np.nanmean(group1[:,np.array(unimodal_idx)],axis=1)
+        group1_transmodal = np.nanmean(group1[:,np.array(transmodal_idx)],axis=1)
+        group2_unimodal = np.nansum(group2[:,np.array(unimodal_idx)]*group2_weights[:,np.array(unimodal_idx)],axis=1) / np.sum(group2_weights[:,np.array(unimodal_idx)],axis=1)
+        group2_transmodal = np.nansum(group2[:,np.array(transmodal_idx)]*group2_weights[:,np.array(transmodal_idx)],axis=1) / np.sum(group2_weights[:,np.array(transmodal_idx)],axis=1)
 
     network_labels = np.concatenate((np.repeat('Unimodal',group1_unimodal.shape[0]),np.repeat('Transmodal',group1_transmodal.shape[0]),np.repeat('Unimodal',group2_unimodal.shape[0]),np.repeat('Transmodal',group2_transmodal.shape[0])),axis=None)
     group_labels = np.concatenate((np.repeat(label1,group1_unimodal.shape[0]+group1_transmodal.shape[0]),np.repeat(label2,group2_unimodal.shape[0]+group2_transmodal.shape[0])),axis=None)

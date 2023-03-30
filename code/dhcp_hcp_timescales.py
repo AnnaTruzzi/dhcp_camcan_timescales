@@ -66,15 +66,15 @@ def get_net_dict():
 
 
 groups_list = ['dhcp_group1','dhcp_group2','hcp']
-#controls = ['drop_scan_dhcp','global_signal','term_only']
-controls=['low_pass_filter']
+controls = ['drop_scan_dhcp','global_signal','term_only']
+#controls=['low_pass_filter']
 
 net_dict = get_net_dict()
 
 
-run_within_analysis = False
-run_tau_estimation_analysis = False
-run_brainrenders = False
+run_within_analysis = True
+run_tau_estimation_analysis = True
+run_brainrenders = True
 run_between_analysis = True
 
 
@@ -238,21 +238,20 @@ if run_between_analysis:
 
 
         SNR_control = [False,True]
-        dhcp_group1_weights = re_weight_dist(snr_dhcp1, snr_hcp)
-        dhcp_group2_weights = re_weight_dist(snr_dhcp2, snr_hcp)
+
+        hcp_weights = re_weight_dist(snr_dhcp1, snr_hcp)
 
         for snr_control in SNR_control:
             if snr_control and control=='drop_scan_dhcp':
-                dhcp_group1_mean = np.nansum(dhcp_group1*dhcp_group1_weights,axis=0) / np.sum(dhcp_group1_weights,axis=0)
-                dhcp_group2_mean = np.nansum(dhcp_group2*dhcp_group2_weights,axis=0) / np.sum(dhcp_group2_weights,axis=0)
+                hcp_mean = np.nansum(hcp*hcp_weights,axis=0) / np.sum(hcp_weights,axis=0)
                 snr_flag='_SNR_control' 
             else:
-                dhcp_group1_mean = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_dhcp_group1_7net_{control}.txt')
-                dhcp_group2_mean = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_dhcp_group2_7net_{control}.txt')
+                hcp_mean = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_hcp_7net_{control}.txt')
                 snr_flag=''
 
+            dhcp_group1_mean = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_dhcp_group1_7net_{control}.txt')
+            dhcp_group2_mean = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_dhcp_group2_7net_{control}.txt')
 
-            hcp_mean = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/tau_estimation_ROImean_hcp_7net_{control}.txt')
             snr_dhcp1_mean=np.nanmean(snr_dhcp1,axis=0)
             snr_dhcp2_mean=np.nanmean(snr_dhcp2,axis=0)
             snr_hcp_mean=np.nanmean(snr_hcp,axis=0)
@@ -303,9 +302,8 @@ if run_between_analysis:
                 else:
                     transmodal_index.extend(net_dict[key])
 
-            unimodal_vs_transmodal(dhcp_group1,hcp,unimodal_index,transmodal_index,dhcp_group1_weights,'dhcp_group1','hcp',flag=control,snr_flag=snr_flag)
-            unimodal_vs_transmodal(dhcp_group2,hcp,unimodal_index,transmodal_index,dhcp_group2_weights,'dhcp_group2','hcp',flag=control,snr_flag=snr_flag)
-
+            unimodal_vs_transmodal(dhcp_group1,hcp,unimodal_index,transmodal_index,hcp_weights,'dhcp_group1','hcp',flag=control,snr_flag=snr_flag)
+            unimodal_vs_transmodal(dhcp_group2,hcp,unimodal_index,transmodal_index,hcp_weights,'dhcp_group2','hcp',flag=control,snr_flag=snr_flag)
 
 
     print('I ran all between group analysis')

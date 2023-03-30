@@ -41,18 +41,18 @@ def run_tau_estimation(group,subj_list,flag,**kwargs):
             filename = os.path.join(root_pth,f'{sub}_timeseries_volumetric_perROI_7net.txt')
         ts_df = np.loadtxt(filename)
 
-        if 'dhcp' in group and (flag=='drop_scan_dhcp' or flag=='SNR_control'):
-            ts_df=ts_df[0::2]
+        if 'dhcp' in group and flag=='drop_scan_dhcp':
+            ts_df=signal.decimate(ts_df,2,axis=0)
 
         if 'dhcp' in group and flag=='low_pass_filter':
             ts_df = signal.decimate(ts_df,2,axis=0)
 
         if 'dhcp' in group and flag=='term_only':
-            ts_df=ts_df[0::2]
+            ts_df=signal.decimate(ts_df,2,axis=0)
 
         if flag=='global_signal':
             if 'dhcp' in group:
-                ts_df=ts_df[0::2]
+                ts_df=signal.decimate(ts_df,2,axis=0)
             brain_average=np.nanmean(ts_df,axis=1)
             brain_average=np.reshape(brain_average,(brain_average.shape[0],-1))
             ts_df= ts_df-brain_average
