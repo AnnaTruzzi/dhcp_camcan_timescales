@@ -73,9 +73,9 @@ net_dict = get_net_dict()
 
 
 run_within_analysis = True
-run_tau_estimation_analysis = True
+run_tau_estimation_analysis = False
 run_brainrenders = True
-run_between_analysis = True
+run_between_analysis = False
 
 
 
@@ -179,7 +179,7 @@ if run_within_analysis:
             
             # get data for brain rendering
             if run_brainrenders:
-                brain_renders.brainrenders(group,tau_mean,net_dict,flag=control)
+                brain_renders.brainrenders(group,tau_mean,snr_mean,net_dict,flag=control)
 
 
             ### barplots for single networks
