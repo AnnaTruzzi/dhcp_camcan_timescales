@@ -168,7 +168,7 @@ if run_within_analysis:
 
 
             ## SNR analysis
-            snr = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/SNR_estimation_dhcp_group1_7net_{control}.txt')
+            snr = np.loadtxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/SNR_estimation_{group}_7net_{control}.txt')
             snr = np.delete(snr,highnan_idx,axis=0)
             np.savetxt(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/results/SNR_estimation_{group}_7net_{control}_nohighnans.txt',tau_array)
 
