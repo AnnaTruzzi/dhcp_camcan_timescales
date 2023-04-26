@@ -62,14 +62,23 @@ def age_model(tau,scan_age,experience_age,network_type,label,flag,snr_flag):
 
 
 def age_corr(tau,experience_age,network_type,label,flag,snr_flag):
-    r,p = spearmanr(np.array(experience_age),np.array(tau))
-    plt.scatter(np.array(experience_age),np.array(tau),alpha=0.5,s=15,color='#014182')
-    plt.xlim((-0.05,18))
-    plt.ylim((-0.05,14))
-    plt.suptitle(f'Experience_age and Tau - {label} \n r={r}, p={p}')
-    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/experience_age_corr_with_tau_{label}_{network_type}_{flag}{snr_flag}.png')
-    plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/experience_age_corr_with_tau_{label}_{network_type}_{flag}{snr_flag}.pdf')
-    plt.close()
+    outliers=['','_nooutliers']
+    for outlier_flag in outliers:
+        if outlier_flag=='_nooutliers':
+            nooutlier_idx = np.where(experience_age<(np.mean(experience_age+(2*np.std(experience_age)))))
+            experience_age = experience_age[nooutlier_idx]
+            tau = tau[nooutlier_idx]
+            xlim = (-0.05,7)
+        else:
+            xlim = (-0.05,18)
+        r,p = spearmanr(np.array(experience_age),np.array(tau))
+        plt.scatter(np.array(experience_age),np.array(tau),alpha=0.5,s=15,color='#014182')
+        plt.xlim(xlim)
+        plt.ylim((-0.05,14))
+        plt.suptitle(f'Experience_age and Tau - {label} \n r={r}, p={p}')
+        plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/experience_age_corr_with_tau_{label}_{network_type}_{flag}{snr_flag}{outlier_flag}.png')
+        plt.savefig(f'/dhcp/fmri_anna_graham/dhcp_hcp_timescales/figures/experience_age_corr_with_tau_{label}_{network_type}_{flag}{snr_flag}{outlier_flag}.pdf')
+        plt.close()
 
 
 def unimodal_vs_transmodal(group1, group2, unimodal_idx, transmodal_idx, group2_weights, label1, label2,flag,snr_flag):

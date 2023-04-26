@@ -72,10 +72,10 @@ controls = ['drop_scan_dhcp','global_signal','term_only']
 net_dict = get_net_dict()
 
 
-run_within_analysis = True
+run_within_analysis = False
 run_tau_estimation_analysis = False
-run_brainrenders = True
-run_between_analysis = False
+run_brainrenders = False
+run_between_analysis = True
 
 
 
