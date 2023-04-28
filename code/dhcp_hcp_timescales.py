@@ -239,7 +239,7 @@ if run_between_analysis:
 
         SNR_control = [False,True]
 
-        hcp_weights = re_weight_dist(snr_dhcp1, snr_hcp)
+        hcp_weights = re_weight_dist(snr_hcp,snr_dhcp1)
 
         for snr_control in SNR_control:
             if snr_control and control=='drop_scan_dhcp':
